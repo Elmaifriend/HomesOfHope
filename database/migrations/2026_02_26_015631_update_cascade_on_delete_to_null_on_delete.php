@@ -43,7 +43,7 @@ return new class extends Migration
 
         Schema::table('applicant_question_responses', function (Blueprint $table) {
             $table->dropForeign(['question_id']);
-            $table->unsignedBigInteger('question_id')->nullable(false)->change();
+            $table->unsignedBigInteger('question_id')->nullable()->change();
             $table->foreign('question_id')->references('id')->on('questions')->cascadeOnDelete();
         });
     }
