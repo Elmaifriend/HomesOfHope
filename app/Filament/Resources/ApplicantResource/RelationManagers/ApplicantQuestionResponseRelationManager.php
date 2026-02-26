@@ -154,14 +154,14 @@ class ApplicantQuestionResponseRelationManager extends RelationManager
 
         // Match a coordenadas
         if (preg_match('/(?<![\d.\-+])[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)(?![\d.])/', $cleanState, $matches)) {
-            return $cache[$state] = "https://maps.google.com/?q=" . urlencode(trim($matches[0]));
+            return "https://maps.google.com/?q=" . urlencode(trim($matches[0]));
         }
 
         // Match a Plus Code
         if (preg_match('/([23456789C][23456789CFGHJMPQRV][23456789CFGHJMPQRVWX]{6}\+[23456789CFGHJMPQRVWX]{2,7}|[23456789CFGHJMPQRVWX]{4,6}\+[23456789CFGHJMPQRVWX]{2,3})/i', $cleanState, $matches)) {
-            return "https://maps.google.com/?q=" . urlencode($matches[0]);
+            return "https://maps.google.com/?q=" . urlencode(trim($matches[0]));
         }
 
-        return $cache[$state] = null;
+        return null;
     }
 }
