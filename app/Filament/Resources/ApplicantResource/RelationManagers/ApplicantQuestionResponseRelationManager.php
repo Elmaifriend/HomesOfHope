@@ -105,9 +105,9 @@ class ApplicantQuestionResponseRelationManager extends RelationManager
                     ->label('Respuesta')
                     ->size(TextColumn\TextColumnSize::ExtraSmall)
                     ->searchable()
-                    ->formatStateUsing(fn (string $state) => self::extractLocationUrl($state) ? '📍 Ver en Mapa' : str($state)->limit(90))
-                    ->color(fn (string $state) => self::extractLocationUrl($state) ? 'primary' : null)
-                    ->url(fn (string $state) => self::extractLocationUrl($state))
+                    ->formatStateUsing(fn (?string $state) => self::extractLocationUrl($state) ? '📍 Ver en Mapa' : str($state)->limit(90))
+                    ->color(fn (?string $state) => self::extractLocationUrl($state) ? 'primary' : null)
+                    ->url(fn (?string $state) => self::extractLocationUrl($state))
                     ->openUrlInNewTab()
             ])
             ->filters([
