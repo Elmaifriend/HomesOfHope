@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Applicant;
 use App\Models\Message;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
@@ -81,15 +82,20 @@ class WhatsappApiNotificationService
 
     public function sendCustomMessage(Applicant $applicant, string $message, ?string $templateName = null, array $parameters = [])
     {
+        if (!$applicant->conversation) {
+            $applicant->conversation()->create();
+            $applicant->load('conversation');
+        }
+
         if ($this->hasActiveSession($applicant)) {
-		 Message::create([
-            		'conversation_id' => $applicant->conversation->id,
-            		'phone' => $applicant->chat_id,
-            		'message' => $message,
-            		'role' => 'assistant',
-            		'name' => $applicant->applicant_name,
-        	]);
-		$this->sendText($applicant->chat_id, $message);
+            Message::create([
+                'conversation_id' => $applicant->conversation->id,
+                'phone' => $applicant->chat_id,
+                'message' => $message,
+                'role' => 'assistant',
+                'name' => $applicant->applicant_name,
+            ]);
+            $this->sendText($applicant->chat_id, $message);
             return;
         }
 
@@ -103,6 +109,8 @@ class WhatsappApiNotificationService
 
     private function hasActiveSession(Applicant $applicant): bool
     {
+        if (!$applicant->conversation) return false;
+
         $lastUserMessage = $applicant->conversation->messages()
             ->where('role', 'user')
             ->latest()
