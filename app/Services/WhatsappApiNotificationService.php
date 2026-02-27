@@ -63,8 +63,8 @@ class WhatsappApiNotificationService
         $message = "Felicidades! La cita para tu entrevista presencial fue " .
             "registrada con exito.\n" .
             "Por favor recuerda la siguiente informacion:\n" .
-            "Tu cita es el dia: " . $applicant->group->date_time->toDateString() . "\n" .
-            "A las: " . $applicant->group->date_time->toTimeString() . "\n" .
+            "Tu cita es el dia: " . $applicant->group->date_time->format('l d M, Y') . "\n" .
+            "A las: " . $applicant->group->date_time->format('h:i A') . "\n" .
             "Con direccion: : " . $applicant->group->location . "\n" .
             "Ubicacion: " . $applicant->group->location_link . "\n";
 
