@@ -10,7 +10,7 @@ class Group extends Model
 {
     use HasFactory;
 
-    protectedd $appends = ['current_members_count']
+    protected $appends = ['current_members_count'];
 
     protected $fillable = [
         'name',
