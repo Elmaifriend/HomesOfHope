@@ -106,6 +106,12 @@ class ApplicantActions
             return;
         }
 
+        if ($applicant->process_status !== "in_process") {
+            $applicant->update([
+                "process_status" => "in_progress"
+            ]);
+        }
+
         $message = $currentQuestion->question_text;
 
         $notificationService->sendCustomMessage($applicant, $message, 'reenviar_pregunta', ['pregunta' => $message]);
