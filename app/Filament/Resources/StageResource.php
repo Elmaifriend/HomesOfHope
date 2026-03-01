@@ -7,9 +7,10 @@ use App\Models\Stage;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
-use Filament\Tables\Table;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 class StageResource extends Resource
@@ -106,7 +107,7 @@ class StageResource extends Resource
             ->defaultPaginationPageOption(25)
             ->paginated([25, 50, 100])
             ->defaultSort('order', 'asc')
-            ->reorderable('order') 
+            ->reorderable('order')
             ->columns([
                 TextColumn::make('order')
                     ->label('#')
@@ -153,5 +154,35 @@ class StageResource extends Resource
             'create' => Pages\CreateStage::route('/create'),
             'edit' => Pages\EditStage::route('/{record}/edit'),
         ];
+    }
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('stage.view_any');
+    }
+
+    public static function canView(Model $record): bool
+    {
+        return auth()->user()->can('stage.view') ?? false;
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->can('stage.create') ?? false;
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return auth()->user()->can('stage.update') ?? false;
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return auth()->user()->can('stage.delete') ?? false;
+    }
+
+    public static function canDeleteAny(): bool
+    {
+        return auth()->user()->can('stage.delete') ?? false;
     }
 }

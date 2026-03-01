@@ -5,14 +5,15 @@ namespace App\Filament\Resources\GroupResource\RelationManagers;
 use App\Filament\Resources\ApplicantResource;
 use App\Models\Applicant;
 use Filament\Forms\Components\Select;
-use Illuminate\Database\Eloquent\Collection;
 use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Support\Colors\Color;
 use Filament\Support\Enums\FontFamily;
 use Filament\Tables;
-use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 
 class ApplicantsRelationManager extends RelationManager
 {
@@ -141,5 +142,25 @@ class ApplicantsRelationManager extends RelationManager
             ->emptyStateHeading('Sin miembros asignados')
             ->emptyStateDescription('Utiliza el botón "Agregar Miembro" para comenzar a llenar este grupo.')
             ->emptyStateIcon('heroicon-o-user-group');
+    }
+
+    public function canView(Model $record): bool
+    {
+        return auth()->user()?->can('applicant.view') ?? false;
+    }
+
+    public function canCreate(): bool
+    {
+        return auth()->user()?->can('applicant.create') ?? false;
+    }
+
+    public function canEdit(Model $record): bool
+    {
+        return auth()->user()?->can('applicant.update') ?? false;
+    }
+
+    public function canDelete(Model $record): bool
+    {
+        return auth()->user()?->can('applicant.delete') ?? false;
     }
 }

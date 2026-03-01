@@ -3,17 +3,15 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\UserResource\Pages;
-use App\Filament\Resources\UserResource\RelationManagers;
 use App\Models\User;
 use Filament\Forms;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Select;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Hash;
 
 
@@ -29,35 +27,68 @@ class UserResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-	    ->schema([
-                Forms\Components\Section::make('Datos del Usuario')
-		    ->columns(2)
-	            ->schema([
-			TextInput::make('name')
-			    ->label('Nombre'),
-		        TextInput::make("email")
-                            ->email()
-		            ->label('Correo electrónico'),
-			Select::make("roles")
-			    ->relationship( name: "roles", titleAttribute: "name"),
-		    ]),
-	        Forms\Components\Section::make('Cambiar contraseña')
-                     ->columns(2)
-	             ->schema([
-			TextInput::make('password')
-                            ->label('Contraseña')
-			    ->password()
-			    ->revealable()
-			    ->required(fn ($context) => $context === 'create')
-			    ->dehydrated(fn ($state) => filled($state))
-			    ->dehydrateStateUsing(fn ($state) => Hash::make($state))
-			    ->same('password_confirmation'),
-		       TextInput::make('password_confirmation')
-			    ->label('Confirmar contraseña')
-			    ->password()
-			    ->label('Confirmar contraseña')
-			    ->dehydrated(false), 
-		     ])
+            ->schema([
+                Forms\Components\Grid::make(3)
+                    ->schema([
+                        Forms\Components\Section::make('Identificación')
+                            ->description('Información básica de acceso.')
+                            ->columnSpan(2)
+                            ->columns(2)
+                            ->schema([
+                                TextInput::make('name')
+                                    ->label('Nombre Completo')
+                                    ->required()
+                                    ->maxLength(255)
+                                    ->prefixIcon('heroicon-m-user'),
+
+                                TextInput::make('email')
+                                    ->label('Correo electrónico')
+                                    ->email()
+                                    ->required()
+                                    ->unique(ignoreRecord: true)
+                                    ->prefixIcon('heroicon-m-envelope'),
+
+                                Select::make('roles')
+                                    ->label('Asignar Roles')
+                                    ->relationship('roles', 'name')
+                                    ->multiple()
+                                    ->preload()
+                                    ->required()
+                                    ->columnSpanFull()
+                                    ->getOptionLabelFromRecordUsing(fn(Model $record) => match ($record->name) {
+                                        'admin' => '🛡️ Administrador',
+                                        'connection' => '🔌 Conexión',
+                                        'selection' => '🎯 Selección',
+                                        'visit' => '🏠 Visita',
+                                        'distribution' => '📦 Distribución',
+                                        default => $record->name,
+                                    })
+                                    ->prefixIcon('heroicon-m-shield-check'),
+                            ]),
+
+                        Forms\Components\Section::make('Seguridad')
+                            ->description('Control de credenciales.')
+                            ->columnSpan(1)
+                            ->schema([
+                                TextInput::make('password')
+                                    ->label('Nueva Contraseña')
+                                    ->password()
+                                    ->revealable()
+                                    ->rule('confirmed')
+                                    ->required(fn($context) => $context === 'create')
+                                    ->dehydrated(fn($state) => filled($state))
+                                    ->dehydrateStateUsing(fn($state) => Hash::make($state))
+                                    ->helperText('Dejar en blanco para mantener la actual.')
+                                    ->rule('min:8'),
+
+                                TextInput::make('password_confirmation')
+                                    ->label('Confirmar Contraseña')
+                                    ->password()
+                                    ->revealable()
+                                    ->requiredWith('password')
+                                    ->dehydrated(false),
+                            ]),
+                    ])
             ]);
     }
 
@@ -65,25 +96,52 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
-		Tables\Columns\TextColumn::make('name')
-		    ->label('Nombre de Usuario')
-		    ->searchable(),
-	    	Tables\Columns\TextColumn::make('roles.name')
-		    ->label('Rol')
-		    ->badge('primary')
-		    ->formatStateUsing(fn ($state) => ucfirst(str_replace('_', ' ', $state)))
-		    ->sortable(),
+                Tables\Columns\TextColumn::make('name')
+                    ->label('Nombre')
+                    ->searchable()
+                    ->sortable()
+                    ->description(fn(User $record) => $record->email),
+
+                Tables\Columns\TextColumn::make('roles.name')
+                    ->label('Roles asignados')
+                    ->badge()
+                    ->separator(',')
+                    ->color(fn(string $state): string => match ($state) {
+                        'admin' => 'danger',
+                        'connection' => 'warning',
+                        'selection' => 'info',
+                        'distribution' => 'success',
+                        'visit' => 'gray',
+                        default => 'primary',
+                    })
+                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                        'admin' => 'Administrador',
+                        'connection' => 'Conexión',
+                        'selection' => 'Selección',
+                        'visit' => 'Visita',
+                        'distribution' => 'Distribución',
+                        default => $state,
+                    })
+                    ->searchable(),
+
+                Tables\Columns\TextColumn::make('created_at')
+                    ->label('Miembro desde')
+                    ->dateTime('d/m/Y')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('roles')
+                    ->relationship('roles', 'name')
+                    ->label('Filtrar por Rol')
+                    ->multiple()
+                    ->preload(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                Tables\Actions\DeleteAction::make()
+                    // Evita que el admin se borre a sí mismo
+                    ->hidden(fn(User $record) => $record->id === auth()->id()),
             ]);
     }
 
@@ -101,5 +159,35 @@ class UserResource extends Resource
             'create' => Pages\CreateUser::route('/create'),
             'edit' => Pages\EditUser::route('/{record}/edit'),
         ];
+    }
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('user.view_any') ?? false;
+    }
+
+    public static function canView(Model $record): bool
+    {
+        return auth()->user()->can('user.view') ?? false;
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->can('user.create') ?? false;
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return auth()->user()->can('user.update') ?? false;
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return auth()->user()->can('user.delete') ?? false;
+    }
+
+    public static function canDeleteAny(): bool
+    {
+        return auth()->user()->can('user.delete') ?? false;
     }
 }
