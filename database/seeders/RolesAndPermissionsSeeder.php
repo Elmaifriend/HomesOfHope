@@ -23,11 +23,23 @@ class RolesAndPermissionsSeeder extends Seeder
         $applicantUpdate = Permission::firstOrCreate(['name' => 'applicant.update']);
         $applicantDelete = Permission::firstOrCreate(['name' => 'applicant.delete']);
 
+        $colonyViewAny = Permission::firstOrCreate(['name' => 'colony.view_any']);
+        $colonyView = Permission::firstOrCreate(['name' => 'colony.view']);
+        $colonyCreate = Permission::firstOrCreate(['name' => 'colony.create']);
+        $colonyUpdate = Permission::firstOrCreate(['name' => 'colony.update']);
+        $colonyDelete = Permission::firstOrCreate(['name' => 'colony.delete']);
+
         $conversationViewAny = Permission::firstOrCreate(['name' => 'conversation.view_any']);
         $conversationView = Permission::firstOrCreate(['name' => 'conversation.view']);
         $conversationCreate = Permission::firstOrCreate(['name' => 'conversation.create']);
         $conversationUpdate = Permission::firstOrCreate(['name' => 'conversation.update']);
         $conversationDelete = Permission::firstOrCreate(['name' => 'conversation.delete']);
+
+        $messageViewAny = Permission::firstOrCreate(['name' => 'message.view_any']);
+        $messageView = Permission::firstOrCreate(['name' => 'message.view']);
+        $messageCreate = Permission::firstOrCreate(['name' => 'message.create']);
+        $messageUpdate = Permission::firstOrCreate(['name' => 'message.update']);
+        $messageDelete = Permission::firstOrCreate(['name' => 'message.delete']);
 
         $familyMemberViewAny = Permission::firstOrCreate(['name' => 'family_member.view_any']);
         $familyMemberView = Permission::firstOrCreate(['name' => 'family_member.view']);
@@ -77,6 +89,18 @@ class RolesAndPermissionsSeeder extends Seeder
             $conversationCreate,
             $conversationUpdate,
             $conversationDelete,
+
+            $colonyViewAny,
+            $colonyView,
+            $colonyCreate,
+            $colonyUpdate,
+            $colonyDelete,
+
+            $messageViewAny,
+            $messageView,
+            $messageCreate,
+            $messageUpdate,
+            $messageDelete,
 
             $familyMemberViewAny,
             $familyMemberView,
