@@ -5,18 +5,19 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\GroupResource\Pages;
 use App\Filament\Resources\GroupResource\RelationManagers;
 use App\Models\Group;
+use App\Services\GroupActions;
 use Filament\Forms;
+use Filament\Forms\Components\Actions;
+use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Forms\Components\Actions\Action;
-use Filament\Forms\Components\Actions;
-use App\Services\GroupActions;
-use Filament\Tables\Columns\TextColumn;
 
 class GroupResource extends Resource
 {
@@ -62,10 +63,10 @@ class GroupResource extends Resource
                             ->label('Miembros Actuales')
                             ->numeric()
                             ->readOnly()
-                            ->disabled() 
+                            ->disabled()
                             ->default(0)
                             ->prefixIcon('heroicon-m-users'),
-                        
+
                         Forms\Components\TextInput::make('location')
                             ->label("Dirección Física")
                             ->placeholder('Calle, Número, Colonia...')
@@ -76,7 +77,7 @@ class GroupResource extends Resource
                             ->label('Enlace de Google Maps')
                             ->placeholder('https://maps.google.com/...')
                             ->prefixIcon('heroicon-m-link')
-                            ->url() 
+                            ->url()
                             ->columnSpanFull(),
                     ]),
 
@@ -166,5 +167,35 @@ class GroupResource extends Resource
             'create' => Pages\CreateGroup::route('/create'),
             'edit' => Pages\EditGroup::route('/{record}/edit'),
         ];
+    }
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('group.view_any') ?? false;
+    }
+
+    public static function canView(Model $record): bool
+    {
+        return auth()->user()->can('group.view') ?? false;
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->can('group.create') ?? false;
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return auth()->user()->can('group.update') ?? false;
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return auth()->user()->can('group.delete') ?? false;
+    }
+
+    public static function canDeleteAny(): bool
+    {
+        return auth()->user()->can('group.delete') ?? false;
     }
 }

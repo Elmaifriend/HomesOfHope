@@ -7,6 +7,7 @@ use App\Models\Group;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Services\WhatsappApiNotificationService;
+use Illuminate\Support\Carbon;
 
 class GroupSelectionController extends Controller
 {
@@ -26,6 +27,7 @@ class GroupSelectionController extends Controller
         // Buscamos todos los grupos que tengan cupo disponible.
         $availableGroups = Group::where('current_members_count', '<', DB::raw('capacity'))
                                ->whereNotNull('date_time')
+                               ->where('date_time', '>=', Carbon::tomorrow())
                                ->orderBy('date_time', 'asc')
                                ->get();
 
@@ -53,6 +55,8 @@ class GroupSelectionController extends Controller
             // Bloqueamos la fila del grupo para evitar que dos personas
             // tomen el último lugar al mismo tiempo (race condition).
             $group = Group::where('id', $groupId)
+                          ->whereNotNull('date_time')
+                          ->where('date_time', '>=', Carbon::tomorrow())
                           ->where('current_members_count', '<', DB::raw('capacity'))
                           ->lockForUpdate()
                           ->first();

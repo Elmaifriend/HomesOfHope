@@ -47,7 +47,7 @@ class ApplicantResource extends Resource
         return [
             'CURP' => $record->curp ?? 'N/A',
             'Teléfono' => str_starts_with($record->chat_id, '521') ? substr($record->chat_id, 3) : $record->chat_id,
-            'Estatus' => match($record->process_status) {
+            'Estatus' => match ($record->process_status) {
                 'in_progress' => 'En Progreso',
                 'approved' => 'Aprobado',
                 'staff_approved' => 'Aprobado por Staff',
@@ -58,11 +58,6 @@ class ApplicantResource extends Resource
                 default => 'Otro',
             },
         ];
-    }
-
-    public static function canViewAny(): bool
-    {
-        return auth()->user()?->hasRole('admin');
     }
 
     public static function form(Form $form): Form
@@ -211,6 +206,7 @@ class ApplicantResource extends Resource
                 Forms\Components\Actions::make([
                     // Botón para aprobar una etapa y pasar a la siguiente
                     Action::make('approveStage')
+                        ->visible(fn (Applicant $record) => auth()->user()->can('applicant.update'))
                         ->label("Aprobar etapa")
                         ->icon('heroicon-o-check-circle')
                         ->requiresConfirmation()
@@ -222,6 +218,7 @@ class ApplicantResource extends Resource
 
                     // Botón para aprobar al aplicante de forma definitiva
                     Action::make('approveFinal')
+                        ->visible(fn (Applicant $record) => auth()->user()->can('applicant.update'))
                         ->label("Aprobar definitivamente")
                         ->icon('heroicon-o-check-circle')
                         ->color('success')
@@ -232,6 +229,7 @@ class ApplicantResource extends Resource
 
                     // Botón de mensaje personalizado
                     Action::make('sendCustomMessage')
+                        ->visible(fn (Applicant $record) => auth()->user()->can('applicant.update'))
                         ->label("Enviar mensaje personalizado")
                         ->icon('heroicon-o-chat-bubble-bottom-center-text')
                         ->form([
@@ -257,6 +255,7 @@ class ApplicantResource extends Resource
 
                     // Botón para reenviar la pregunta actual
                     Action::make('resendQuestion')
+                        ->visible(fn (Applicant $record) => auth()->user()->can('applicant.update'))
                         ->label("Reenviar pregunta actual")
                         ->icon('heroicon-o-question-mark-circle')
                         ->color('warning')
@@ -267,6 +266,7 @@ class ApplicantResource extends Resource
 
                     // Botón para reenviar el enlace de selección de grupo
                     Action::make('resendGroupLink')
+                        ->visible(fn (Applicant $record) => auth()->user()->can('applicant.update'))
                         ->label("Reenviar enlace de grupo")
                         ->icon('heroicon-o-link')
                         ->color('warning')
@@ -277,6 +277,7 @@ class ApplicantResource extends Resource
 
                     // Botón para reiniciar el proceso del aplicante
                     Action::make('restartApplicant')
+                        ->visible(fn (Applicant $record) => auth()->user()->can('applicant.delete'))
                         ->label("Reiniciar")
                         ->icon('heroicon-o-arrow-path')
                         ->color('danger')
@@ -287,6 +288,7 @@ class ApplicantResource extends Resource
 
                     // Botón para rechazar al aplicante
                     Action::make('rejectApplicant')
+                        ->visible(fn (Applicant $record) => auth()->user()->can('applicant.update'))
                         ->label('Rechazar')
                         ->icon('heroicon-o-x-circle')
                         ->color('danger')
@@ -319,8 +321,8 @@ class ApplicantResource extends Resource
                         ->modalHeading('Rechazar al aplicante')
                         ->modalDescription("¿Estás seguro de rechazar a este aplicante?\nRecuerda que si han pasado 24 horas desde la última interacción del aplicante con el bot se cobrara este mensaje")
                         ->action(function (array $data, Applicant $record) {
-                                ApplicantActions::rejectApplicant($record, $data['predefined_reason'] === 'other' ? $data['reason'] : $data['predefined_reason']);
-                            }),
+                            ApplicantActions::rejectApplicant($record, $data['predefined_reason'] === 'other' ? $data['reason'] : $data['predefined_reason']);
+                        }),
                 ])
                     ->fullWidth()
                     ->columnSpanFull(),
@@ -492,5 +494,35 @@ class ApplicantResource extends Resource
             'view' => Pages\ViewApplicant::route('/{record}'),
             'edit' => Pages\EditApplicant::route('/{record}/edit'),
         ];
+    }
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('applicant.view_any');
+    }
+
+    public static function canView(Model $record): bool
+    {
+        return auth()->user()->can('applicant.view') ?? false;
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->can('applicant.create') ?? false;
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return auth()->user()->can('applicant.update') ?? false;
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return auth()->user()->can('applicant.delete') ?? false;
+    }
+
+    public static function canDeleteAny(): bool
+    {
+        return auth()->user()->can('applicant.delete') ?? false;
     }
 }

@@ -15,7 +15,10 @@ class RolesAndPermissionsSeeder extends Seeder
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         $admin = Role::firstOrCreate(['name' => 'admin']);
-        $visitator = Role::firstOrCreate(['name' => 'visitator']);
+        $connection = Role::firstOrCreate(['name' => 'connection']);
+        $selection = Role::firstOrCreate(['name' => 'selection']);
+        $visit = Role::firstOrCreate(['name' => 'visit']);
+        $distribution = Role::firstOrCreate(['name' => 'distribution']);
 
         $applicantViewAny = Permission::firstOrCreate(['name' => 'applicant.view_any']);
         $applicantView = Permission::firstOrCreate(['name' => 'applicant.view']);
@@ -23,11 +26,23 @@ class RolesAndPermissionsSeeder extends Seeder
         $applicantUpdate = Permission::firstOrCreate(['name' => 'applicant.update']);
         $applicantDelete = Permission::firstOrCreate(['name' => 'applicant.delete']);
 
+        $colonyViewAny = Permission::firstOrCreate(['name' => 'colony.view_any']);
+        $colonyView = Permission::firstOrCreate(['name' => 'colony.view']);
+        $colonyCreate = Permission::firstOrCreate(['name' => 'colony.create']);
+        $colonyUpdate = Permission::firstOrCreate(['name' => 'colony.update']);
+        $colonyDelete = Permission::firstOrCreate(['name' => 'colony.delete']);
+
         $conversationViewAny = Permission::firstOrCreate(['name' => 'conversation.view_any']);
         $conversationView = Permission::firstOrCreate(['name' => 'conversation.view']);
         $conversationCreate = Permission::firstOrCreate(['name' => 'conversation.create']);
         $conversationUpdate = Permission::firstOrCreate(['name' => 'conversation.update']);
         $conversationDelete = Permission::firstOrCreate(['name' => 'conversation.delete']);
+
+        $messageViewAny = Permission::firstOrCreate(['name' => 'message.view_any']);
+        $messageView = Permission::firstOrCreate(['name' => 'message.view']);
+        $messageCreate = Permission::firstOrCreate(['name' => 'message.create']);
+        $messageUpdate = Permission::firstOrCreate(['name' => 'message.update']);
+        $messageDelete = Permission::firstOrCreate(['name' => 'message.delete']);
 
         $familyMemberViewAny = Permission::firstOrCreate(['name' => 'family_member.view_any']);
         $familyMemberView = Permission::firstOrCreate(['name' => 'family_member.view']);
@@ -65,6 +80,98 @@ class RolesAndPermissionsSeeder extends Seeder
         $userUpdate = Permission::firstOrCreate(['name' => 'user.update']);
         $userDelete = Permission::firstOrCreate(['name' => 'user.delete']);
 
+        $connection->givePermissionTo([
+            $applicantViewAny,
+            $applicantView,
+            $applicantUpdate,
+            $applicantCreate,
+
+            $conversationViewAny,
+            $conversationView,
+
+            $messageViewAny,
+            $messageView,
+
+            $colonyViewAny,
+            $colonyView,
+
+            $groupViewAny,
+            $groupView,
+            $groupUpdate,
+            $groupCreate,
+            $groupDelete,
+        ]);
+
+        $visit->givePermissionTo([
+            $applicantViewAny,
+            $applicantView,
+
+            $groupViewAny,
+            $groupView,
+
+            $conversationViewAny,
+            $conversationView,
+
+            $messageViewAny,
+            $messageView,
+
+            $colonyViewAny,
+            $colonyView,
+
+            $familyMemberViewAny,
+            $familyMemberView,
+
+            $familyProfileViewAny,
+            $familyProfileView,
+        ]);
+
+        $selection->givePermissionTo([
+            $applicantViewAny,
+            $applicantView,
+
+            $groupViewAny,
+            $groupView,
+
+            $conversationViewAny,
+            $conversationView,
+
+            $messageViewAny,
+            $messageView,
+
+            $colonyViewAny,
+            $colonyView,
+
+            $familyMemberViewAny,
+            $familyMemberView,
+            $familyMemberCreate,
+            $familyMemberUpdate,
+
+            $familyProfileViewAny,
+            $familyProfileView,
+            $familyProfileCreate,
+            $familyProfileUpdate,
+        ]);
+
+        $distribution->givePermissionTo([
+            $applicantViewAny,
+            $applicantView,
+
+            $conversationViewAny,
+            $conversationView,
+
+            $messageViewAny,
+            $messageView,
+
+            $colonyViewAny,
+            $colonyView,
+
+            $familyProfileViewAny,
+            $familyProfileView,
+
+            $familyMemberViewAny,
+            $familyMemberView,
+        ]);
+
         $admin->givePermissionTo([
             $applicantViewAny,
             $applicantView,
@@ -77,6 +184,18 @@ class RolesAndPermissionsSeeder extends Seeder
             $conversationCreate,
             $conversationUpdate,
             $conversationDelete,
+
+            $colonyViewAny,
+            $colonyView,
+            $colonyCreate,
+            $colonyUpdate,
+            $colonyDelete,
+
+            $messageViewAny,
+            $messageView,
+            $messageCreate,
+            $messageUpdate,
+            $messageDelete,
 
             $familyMemberViewAny,
             $familyMemberView,
@@ -116,15 +235,63 @@ class RolesAndPermissionsSeeder extends Seeder
         ]);
 
         $adminEmails = [
-            "admin@admin.com",
-            "mario.borda@ywamsdb.org",
-            "montserrat.gonzalez@ywamsdb.org"
+            'admin@admin.com',
+            'mario.borda@ywamsdb.org',
+            'montserrat.gonzalez@ywamsdb.org',
         ];
 
-        $users = User::whereIn("email", $adminEmails )->get();
+        $selectionEmails = [
+            'pablo.mendez@ywamsdb.org',
+            'brian.villaruel@ywamsdb.org',
+            'jonas.mayer@ywamsdb.org',
+            'mauro.lopez@ywamsdb.org',
+        ];
 
-        foreach( $users as $user ){
-            $user->assignRole($admin);
+        $visitEmails = [
+            'juan.ordonez@ywamsdb.org',
+            'javier.salazar@ywamsdb.org',
+            'jose.cepeda@ywamsdb.org',
+            'hanna.stoltz@ywamsdb.org',
+            'ruth.gasca@ywamsdb.org',
+            'manuel.ruiz@ywamsdb.org',
+        ];
+
+        $connectionEmails = [
+            'alfredo.robles@ywamsdb.org',
+            'laura.torres@ywamsdb.org',
+            'jesus.arreola@ywamsdb.org',
+            'yadira.morales@ywamsdb.org',
+            'jonathan.garcia@ywamsdb.org',
+        ];
+
+        $distributionEmails = [
+            'zureida.silva@ywamsdb.org',
+        ];
+
+        $adminUsers = User::whereIn('email', $adminEmails)->get();
+        $selectionUsers = User::whereIn('email', $selectionEmails)->get();
+        $visitUsers = User::whereIn('email', $visitEmails)->get();
+        $connectionUsers = User::whereIn('email', $connectionEmails)->get();
+        $distributionUsers = User::whereIn('email', $distributionEmails)->get();
+
+        foreach ($adminUsers as $adminUser) {
+            $adminUser->assignRole($admin);
+        }
+
+        foreach ($selectionUsers as $selectionUser) {
+            $selectionUser->assignRole($selection);
+        }
+
+        foreach ($visitUsers as $visitUser) {
+            $visitUser->assignRole($visit);
+        }
+
+        foreach ($connectionUsers as $connectionUser) {
+            $connectionUser->assignRole($connection);
+        }
+
+        foreach ($distributionUsers as $distributionUser) {
+            $distributionUser->assignRole($distribution);
         }
     }
 }

@@ -64,21 +64,21 @@ class ConversationRelationManager extends RelationManager
     {
         return $table
             ->recordTitleAttribute('message')
-            ->defaultSort('created_at', 'desc') 
+            ->defaultSort('created_at', 'desc')
             ->columns([
                 IconColumn::make('role')
                     ->label('Rol')
-                    ->icon(fn (string $state): string => match ($state) {
+                    ->icon(fn(string $state): string => match ($state) {
                         'user' => 'heroicon-m-user',
-                        'assistant' => 'heroicon-m-cpu-chip', 
+                        'assistant' => 'heroicon-m-cpu-chip',
                         default => 'heroicon-m-question-mark-circle',
                     })
-                    ->color(fn (string $state): string => match ($state) {
+                    ->color(fn(string $state): string => match ($state) {
                         'user' => 'info',
                         'assistant' => 'primary',
                         default => 'gray',
                     })
-                    ->tooltip(fn (string $state): string => match ($state) {
+                    ->tooltip(fn(string $state): string => match ($state) {
                         'user' => 'Enviado por el Usuario',
                         'assistant' => 'Respuesta del Bot',
                         default => $state,
@@ -86,11 +86,11 @@ class ConversationRelationManager extends RelationManager
 
                 TextColumn::make('message')
                     ->label('Mensaje')
-                    ->color(fn (Message $record) => $record->role === 'assistant' ? 'gray' : 'black')
+                    ->color(fn(Message $record) => $record->role === 'assistant' ? 'gray' : 'black')
                     ->limit(150)
                     ->wrap()
                     ->searchable()
-                    ->description(fn (Message $record) => $record->created_at->locale('es')->diffForHumans(), position: 'below'),
+                    ->description(fn(Message $record) => $record->created_at->locale('es')->diffForHumans(), position: 'below'),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('role')
@@ -108,7 +108,7 @@ class ConversationRelationManager extends RelationManager
                     Tables\Actions\ViewAction::make()
                         ->modalHeading(''),
                 ])
-                ->color('gray'),
+                    ->color('gray'),
             ])
             ->bulkActions([
                 //
@@ -116,5 +116,25 @@ class ConversationRelationManager extends RelationManager
             ->emptyStateHeading('Sin mensajes')
             ->emptyStateDescription('No se ha iniciado ninguna conversación con este aplicante.')
             ->emptyStateIcon('heroicon-o-chat-bubble-left-ellipsis');
+    }
+
+    public function canView(Model $record): bool
+    {
+        return auth()->user()?->can('conversation.view') ?? false;
+    }
+
+    public function canCreate(): bool
+    {
+        return auth()->user()?->can('conversation.create') ?? false;
+    }
+
+    public function canEdit(Model $record): bool
+    {
+        return auth()->user()?->can('conversation.update') ?? false;
+    }
+
+    public function canDelete(Model $record): bool
+    {
+        return auth()->user()?->can('conversation.delete') ?? false;
     }
 }

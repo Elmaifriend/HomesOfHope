@@ -10,6 +10,8 @@ class Group extends Model
 {
     use HasFactory;
 
+    protected $appends = ['current_members_count'];
+
     protected $fillable = [
         'name',
         "message",
@@ -31,7 +33,7 @@ class Group extends Model
     public function getCurrentMembersCountAttribute(): int
     {
         return $this->applicants()->count();
-    } 
+    }
 
     // Relación con los solicitantes del grupo
     public function applicants(): HasMany

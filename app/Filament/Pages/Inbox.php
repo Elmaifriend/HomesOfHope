@@ -73,6 +73,7 @@ class Inbox extends Page implements HasTable
             ])
             ->actions([
                 Action::make('markAsRead')
+                    ->visible(fn (Applicant $record) => auth()->user()->can('applicant.update'))
                     ->label('Listo')
                     ->icon('heroicon-m-check')
                     ->color('success')

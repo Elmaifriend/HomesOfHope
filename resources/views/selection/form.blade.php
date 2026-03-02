@@ -54,7 +54,7 @@
                         <div class="ml-2">
                             ✏️ <span class="font-bold">Nombre:</span> {{ $group->name }}
                             <br>
-                            🕘 <span class="font-bold">Fecha:</span> {{ \Carbon\Carbon::parse($group->date)->format('d/m/Y') }}
+                            🕘 <span class="font-bold">Fecha:</span> {{ \Carbon\Carbon::parse($group->date_time)->translatedFormat('l d M, Y - h:i A') }}
                             <br>
                             📍 <span class="font-bold">Lugar:</span> {{ $group->location }}
                         </div>

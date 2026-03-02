@@ -7,6 +7,7 @@ use App\Models\Colony;
 use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Illuminate\Database\Eloquent\Model;
 
 class ColonyResource extends Resource
 {
@@ -81,5 +82,35 @@ class ColonyResource extends Resource
             'create' => Pages\CreateColony::route('/create'),
             'edit' => Pages\EditColony::route('/{record}/edit'),
         ];
+    }
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('colony.view_any') ?? false;
+    }
+
+    public static function canView(Model $record): bool
+    {
+        return auth()->user()->can('colony.view') ?? false;
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->can('colony.create') ?? false;
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return auth()->user()->can('colony.update') ?? false;
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return auth()->user()->can('colony.delete') ?? false;
+    }
+
+    public static function canDeleteAny(): bool
+    {
+        return auth()->user()->can('colony.delete') ?? false;
     }
 }
